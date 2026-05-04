@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: browser-monitor
+    runtime: image
+    repo: https://github.com/your-repo
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DB_FILE
+        value: /opt/render/project/src/data/monitor.db
