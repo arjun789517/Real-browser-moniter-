@@ -1,0 +1,22 @@
+def check_with_browser(url, timeout=60):
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless=new')
+    driver = webdriver.Chrome(options=options)
+    start_time = time.time()
+    try:
+        driver.set_page_load_timeout(timeout)
+        driver.get(url)
+        # Wait for a specific element that proves the app is alive
+        # For example, wait for a div with id 'root' or a certain text
+        WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.ID, "root"))
+        )
+        # Get memory usage (rough estimate)
+        memory_mb = driver.execute_script(
+            "return performance.memory.usedJSHeapSize / 1048576;"
+        ) if 'performance' in driver.execute_script("return window") else 0
+        return True, memory_mb, driver.title
+    except Exception as e:
+        return False, 0, str(e)
+    finally:
+        driver.quit()
