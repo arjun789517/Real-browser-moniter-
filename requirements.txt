@@ -1,0 +1,4 @@
+streamlit
+selenium
+sqlite3
+apscheduler
