@@ -14,28 +14,24 @@ RUN apt-get update && apt-get install -y \
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
-# Set display port to avoid errors (headless doesn't need real display)
-ENV DISPLAY=:99
-
-# Create working directory
+# Upgrade pip and install Python dependencies
 WORKDIR /app
-
-# Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Copy the application
 COPY app.py .
 
-# Create a volume for the database (optional, to persist monitors across restarts)
-VOLUME ["/app/data"]
-# We'll keep DB in /app by default, but can be changed. For persistence, you can mount a volume.
+# Create a writable directory for the database
+RUN mkdir -p /app/data
+ENV DB_FILE=/app/data/monitor.db
 
-# Expose Streamlit default port
+# Expose Streamlit port
 EXPOSE 8501
 
-# Healthcheck (optional) to ensure Streamlit is running
+# Healthcheck
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health || exit 1
 
-# Run Streamlit app
+# Run Streamlit
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
